@@ -3,7 +3,7 @@ import os
 
 def upload_space():
     api = HfApi()
-    space_repo_id = "labhara/predictive-maintenance-app"  # update with your HF Space ID
+    space_repo_id = "labhara/predictive-maintenance-app"
 
     folder_path = os.path.dirname(os.path.abspath(__file__))
 
