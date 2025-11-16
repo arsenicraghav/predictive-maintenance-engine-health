@@ -2,7 +2,7 @@ import pandas as pd
 from datasets import load_dataset
 from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.metrics import accuracy_score, f1_score
-from huggingface_hub import HfApi, HfFolder
+from huggingface_hub import HfApi
 import joblib
 import os
 
