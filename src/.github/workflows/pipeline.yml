@@ -1,0 +1,63 @@
+name: PredictiveMaintenance-CI
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build-train-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.10"
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r deployment/requirements.txt
+        pip install datasets huggingface_hub joblib scikit-learn
+
+    - name: Configure Hugging Face token
+      env:
+        HF_TOKEN: ${{ secrets.HF_TOKEN }}
+      run: |
+        python - << "EOF"
+        from huggingface_hub import login
+        import os
+        token = os.environ.get("HF_TOKEN")
+        if not token:
+          raise SystemExit("HF_TOKEN not set in GitHub secrets")
+        login(token=token)
+        EOF
+
+    - name: Train and upload model to Hugging Face
+      run: |
+        python training.py
+
+    - name: Deploy app to Hugging Face Space
+      run: |
+        python deployment/deploy_to_hf.py
+
+    - name: Commit and push updated artifacts to main
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        git status
+        if [ -n "$(git status --porcelain)" ]; then
+          echo "Changes detected, committing..."
+          git add models/ || true
+          git add . || true
+          git commit -m "Update trained model and deployment artifacts [CI]" || true
+          git push
+        else
+          echo "No changes to commit."
+        fi
