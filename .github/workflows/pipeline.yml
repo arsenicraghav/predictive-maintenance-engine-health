@@ -39,7 +39,7 @@ jobs:
 
     - name: Train and upload model to Hugging Face
       run: |
-        python training.py
+        python src/training.py
 
     - name: Deploy app to Hugging Face Space
       run: |
