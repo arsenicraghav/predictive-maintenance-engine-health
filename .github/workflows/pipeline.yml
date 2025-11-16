@@ -1,4 +1,4 @@
-name: PredictiveMaintenance-CI
+name: PredictiveMaintenance-MLOps
 
 on:
   push:
